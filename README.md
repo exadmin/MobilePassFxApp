@@ -49,3 +49,49 @@ To start using the application you will need:
 - The application stores your Password in the Java KeyStore file which you will provide. The password to the KeyStore is stored in the properties file in plain-text format. So this only guarantees that no one accidentially will see your password on the screen. But is still possible to steel your password form keystore if there is accees to the file.
 - No logging of your password is implemented, neither into log files nor into console
 - No any network connection is done (or implemented) by the application itself
+
+
+# Installation process (step by step from scratch)
+* Download and install OpenJDK: https://download.java.net/openjdk/jdk8u41/ri/openjdk-8u41-b04-windows-i586-14_jan_2020.zip
+* Download and install Git: https://git-scm.com/downloads
+* Download and install Apache Maven: https://dlcdn.apache.org/maven/maven-3/3.8.6/binaries/apache-maven-3.8.6-bin.zip
+Following maven settting were used:
+`<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+    <localRepository>${user.home}/.m2/repository</localRepository>
+    <interactiveMode>true</interactiveMode>
+    <offline>false</offline>
+	
+	 <profiles>
+        <profile>
+            <id>default</id>
+            <repositories>
+				<repository>
+					<id>central</id>
+					<name>Maven Central</name>
+					<url>https://repo1.maven.org/maven2/</url>
+					<releases>
+						<enabled>true</enabled>
+						<updatePolicy>never</updatePolicy>
+					</releases>
+					<snapshots>
+						<enabled>false</enabled>
+					</snapshots>
+				</repository>
+			</repositories>
+        </profile>
+    </profiles>
+</settings>`
+
+All next build steps were done in the `c:\Temp` working dir
+* Clone opencv4j repository. This is a java-wrapper over opencv libraries `c:\Temp>git clone https://github.com/exadmin/opencv4j.git`
+* Build and install it into local repository: c:\Temp\opencv4j>mvn clean install
+* Clone MobilePassFxApp repository: `git clone https://github.com/exadmin/MobilePassFxApp.git`
+* Build it: `mvn clean compile assembly:single install -Pdefault`
+* Create new folder: "c:\Program Files\MobilePassFxApp" 
+* Copy content of "dist" folder into "c:\Program Files\MobilePassFxApp" 
+* Edit "c:\Program Files\MobilePassFxApp\run-app.cmd"
+Following content was used in example:
+`cd "c:\Program Files\MobilePassFxApp"
+start "" "c:\Tools\java-se-8u41-ri\bin\java.exe" -jar MobilePassFxApp-1.1.jar`
+* Create a shortcut for the run-app.cmd placing it on desktop
