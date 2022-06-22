@@ -55,8 +55,10 @@ To start using the application you will need:
 * Download and install OpenJDK: https://download.java.net/openjdk/jdk8u41/ri/openjdk-8u41-b04-windows-i586-14_jan_2020.zip
 * Download and install Git: https://git-scm.com/downloads
 * Download and install Apache Maven: https://dlcdn.apache.org/maven/maven-3/3.8.6/binaries/apache-maven-3.8.6-bin.zip
+
 Following maven settting were used:
-`<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+```xml
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
     <localRepository>${user.home}/.m2/repository</localRepository>
     <interactiveMode>true</interactiveMode>
@@ -81,7 +83,8 @@ Following maven settting were used:
 			</repositories>
         </profile>
     </profiles>
-</settings>`
+</settings>
+```
 
 All next build steps were done in the `c:\Temp` working dir
 * Clone opencv4j repository. This is a java-wrapper over opencv libraries `c:\Temp>git clone https://github.com/exadmin/opencv4j.git`
