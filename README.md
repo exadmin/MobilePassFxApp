@@ -52,7 +52,7 @@ To start using the application you will need:
 
 
 # Installation process (step by step from scratch)
-* Download and install OpenJDK: https://download.java.net/openjdk/jdk8u41/ri/openjdk-8u41-b04-windows-i586-14_jan_2020.zip
+* Download and install Oracle JDK : https://www.oracle.com/cis/java/technologies/javase/javase8-archive-downloads.html
 * Download and install Git: https://git-scm.com/downloads
 * Download and install Apache Maven: https://dlcdn.apache.org/maven/maven-3/3.8.6/binaries/apache-maven-3.8.6-bin.zip
 
