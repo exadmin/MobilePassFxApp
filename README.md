@@ -96,5 +96,5 @@ All next build steps were done in the `c:\Temp` working dir
 * Edit "c:\Program Files\MobilePassFxApp\run-app.cmd"
 Following content was used in example:
 `cd "c:\Program Files\MobilePassFxApp"
-start "" "c:\Tools\java-se-8u41-ri\bin\java.exe" -jar MobilePassFxApp-1.1.jar`
+start "" "c:\Program Files (x86)\Java\jdk1.8.0_202\bin\javaw.exe" -jar MobilePassFxApp-1.1.jar`
 * Create a shortcut for the run-app.cmd placing it on desktop
