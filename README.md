@@ -43,3 +43,9 @@ To start using the application you will need:
 ## Less secure flow (but still safe)
 * Download already built binary distributive of the application
 * Complete all steps from the previous topic starting from "Create new folder for the application somewhere..."
+
+
+# Security aspects
+- The application stores your Password in the Java KeyStore file which you will provide. The password to the KeyStore is stored in the properties file in plain-text format. So this only guarantees that no one accidentially will see your password on the screen. But is still possible to steel your password form keystore if there is accees to the file.
+- No logging of your password is implemented, neither into log files nor into console
+- No any network connection is done (or implemented) by the application itself
