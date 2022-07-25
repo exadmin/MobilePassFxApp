@@ -51,6 +51,7 @@ public class FxSceneModel {
     public final IntegerProperty cannyApertureSize = new SimpleIntegerProperty(2);
 
     public final BooleanProperty escKeyWasPressedRecently = new SimpleBooleanProperty(false);
+    private final BooleanProperty disableCLICall = new SimpleBooleanProperty(false);
 
     public FxSceneModel(Stage primaryStage) {
         this.primaryStage = primaryStage;
@@ -130,5 +131,22 @@ public class FxSceneModel {
 
     public Stage getPrimaryStage() {
         return primaryStage;
+    }
+
+    public void setDisableCLICall(boolean value) {
+        disableCLICall.setValue(value);
+    }
+
+    public boolean isCLICallDisabled() {
+        return disableCLICall.getValue();
+    }
+
+    public void printToConsole(String message) {
+        Platform.runLater(() -> {
+            getTextArea().appendText(message + "\n");
+
+            // attempt to scroll down
+            getTextArea().setScrollTop(Double.MAX_VALUE);
+        });
     }
 }

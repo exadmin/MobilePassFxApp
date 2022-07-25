@@ -13,6 +13,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
+import java.util.Map;
+
 public class MobilePassCodeRecognizerApp extends Application {
 
     public static void main(String[] args) {
@@ -26,6 +28,7 @@ public class MobilePassCodeRecognizerApp extends Application {
 
         // Let's build & show some window to user as soon as possible
         FxSceneModel fxSceneModel = new FxSceneModel(primaryStage);
+        parseProgramParameters(fxSceneModel);
 
         ModernSceneBuilder fxMainSceneBuilder = new ModernSceneBuilder(fxSceneModel);
         Scene scene = fxMainSceneBuilder.buildUI();
@@ -53,6 +56,15 @@ public class MobilePassCodeRecognizerApp extends Application {
             alert.setHeaderText("Not all settings are specified");
             alert.setContentText(settingsErrorText);
             alert.showAndWait();
+        }
+    }
+
+    private void parseProgramParameters(FxSceneModel fxModel) {
+        for (String rawParameter : getParameters().getRaw()) {
+            if (rawParameter.equals("--no_cli_call")) {
+                fxModel.setDisableCLICall(true);
+                fxModel.printToConsole("WARN: No real CLI call will be done as '--no_cli_call' argument is passed to the application");
+            }
         }
     }
 }

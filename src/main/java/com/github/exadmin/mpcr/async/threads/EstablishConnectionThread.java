@@ -6,6 +6,7 @@ import com.github.exadmin.mpcr.misc.FileUtils;
 import com.github.exadmin.mpcr.misc.Settings;
 import com.github.exadmin.mpcr.misc.StrUtils;
 import javafx.application.Platform;
+import javafx.scene.control.Alert;
 
 import java.io.*;
 
@@ -25,6 +26,14 @@ public class EstablishConnectionThread extends MyRunnable {
 
     @Override
     protected void runSafe() throws Exception {
+        // shutdown video-camera - we do not need it anymore
+        fxSceneModel.getVideoCapture().release();
+
+        if (fxSceneModel.isCLICallDisabled()) {
+            printlnToFxConsole("CLI call is disabled. Stopping establishing process.");
+            return;
+        }
+
         // create cmd-file to be executed
         File cmdFile = new File(CMD_SHORT_FILENAME);
         try (PrintWriter pw = new PrintWriter(cmdFile)) {
@@ -72,18 +81,15 @@ public class EstablishConnectionThread extends MyRunnable {
 
             if (line.equals("goodbye...")) break;
         }
+
+        // todo: in case successfull VPN connection establishing - we can add correctly recognized digits into the library (ala ML)
     }
 
     private void printlnToFxConsole(String message) {
         if (printToConsole) {
             System.out.println(message);
-        } else {
-            Platform.runLater(() -> {
-                fxSceneModel.getTextArea().appendText(message + "\n");
-
-                // attempt to scroll down - but currently does not work, todo: fix
-                fxSceneModel.getTextArea().setScrollTop(Double.MAX_VALUE);
-            });
         }
+
+        fxSceneModel.printToConsole(message);
     }
 }
