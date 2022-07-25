@@ -182,10 +182,10 @@ public class DigitsFinder {
                 || imgHeight < 480 - DELTA || imgHeight > 480 + DELTA) return null;
 
         // define new sub image with big digits
-        final int startRowIndex = 150;
-        final int endRowIndex   = 350;
-        final int startColIndex = 100;
-        final int endColIndex   = 550;
+        final int startRowIndex = 200;
+        final int endRowIndex   = 320;
+        final int startColIndex = 30;
+        final int endColIndex   = 630;
         final Color BLACK = Color.BLACK;
 
         int leftX  = 1000;
