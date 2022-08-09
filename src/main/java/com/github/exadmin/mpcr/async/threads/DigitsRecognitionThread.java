@@ -9,12 +9,14 @@ import com.github.exadmin.opencv4j.ImageUtils;
 import javafx.application.Platform;
 import javafx.scene.image.Image;
 import org.opencv.core.Mat;
+import org.opencv.objdetect.QRCodeDetector;
 
 import java.util.List;
 
 public class DigitsRecognitionThread extends MyRunnable {
     private boolean doVideoCapturing;
     private final DigitsFinder digitsFinder;
+    private QRCodeDetector qrCodeDetector;
 
     public DigitsRecognitionThread(FxSceneModel fxSceneModel, MyRunnable nextRunnable) {
         super(fxSceneModel, nextRunnable);
@@ -36,6 +38,19 @@ public class DigitsRecognitionThread extends MyRunnable {
                 fxSceneModel.getVideoCapture().read(frame);
 
                 if (!frame.empty()) {
+                    if (qrCodeDetector == null) {
+                        qrCodeDetector = new QRCodeDetector();
+                    }
+
+                    String qrCodeStr = qrCodeDetector.detectAndDecode(frame);
+                    if (qrCodeStr != null && qrCodeStr.length() > 0) {
+                        System.out.println("qr = " + qrCodeStr);
+                        Platform.runLater(() -> {
+                            fxSceneModel.passPhraseForKeyStore.setValue(qrCodeStr);
+                        });
+
+                    }
+
                     // Render it on the main FX form
                     Image image = ImageUtils.convertToFxImage(frame);
                     fxSceneModel.setImageAsync(image);

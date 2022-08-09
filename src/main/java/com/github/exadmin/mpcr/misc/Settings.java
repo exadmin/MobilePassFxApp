@@ -1,19 +1,13 @@
 package com.github.exadmin.mpcr.misc;
 
-import javafx.scene.control.Alert;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableEntryException;
-import java.security.cert.CertificateException;
 import java.util.Properties;
 
 public class Settings {
+    private static final String SETTINGS_FILE_NAME = "settings.properties";
+
     public static final int DELAY_BETWEEN_FRAMES_MS = 41;
     public static final long TIME_TO_WAIT_BEFORE_START_VPN_CONNECTING_SECONDS = 5;
 
@@ -23,29 +17,21 @@ public class Settings {
     public static final String FX_STYLE_PASSWORD_PROMPT_STYLE_NEED_INPUT = "-fx-prompt-text-fill: gray;";
     public static final String UI_BIG_CAPTION_DEFAULT_TEXT = "Waiting for digits recognition...";
 
-
     private static final String PROP_NAME_VPNCLI_PATH = "vpncli-file-full-path";
     private static final String PROP_NAME_VPN_HOST = "vpn-host";
-    private static final String PROP_NAME_KEYSTORE_PATH = "keystore-file-full-path";
-    private static final String PROP_NAME_KEYSTORE_PASSWORD = "keystore-master-password";
     private static final String PROP_NAME_NT_LOGIN = "nt-login";
+    private static final String PROP_NAME_NT_PASSWORD = "nt-password";
     private static final String PROP_NAME_AUTO_STOP = "auto-stop-vpn-agents";
 
     private static final Properties properties = new Properties();
-
-    private static String ntPassword = null;
+    // private static String keyStoreMasterPasswordSessionKey = null;
 
     public static Exception loadFromFile() {
         try {
-            properties.load(Files.newInputStream(Paths.get("./settings.dat")));
-
-            KeyStoreHelperUnsafe keyStoreHelper = new KeyStoreHelperUnsafe(getKeyStorePath(), getKeyStoreMasterPassword());
-            keyStoreHelper.loadFromDisk();
-            setNtPassword(keyStoreHelper.getUserSecret());
-
+            properties.load(Files.newInputStream(Paths.get("./" + SETTINGS_FILE_NAME)));
             return null;
         } catch (NoSuchFileException nsfe) {
-            return new Exception("Settings file 'settings.dat' is not found in the working dir");
+            return new Exception("Settings file '" + SETTINGS_FILE_NAME + "' is not found in the working dir");
         } catch (Exception ex) {
             ex.printStackTrace();
             return ex;
@@ -56,21 +42,11 @@ public class Settings {
         try {
             properties.setProperty(PROP_NAME_VPNCLI_PATH, getVpncliPath());
             properties.setProperty(PROP_NAME_VPN_HOST, getVpnHost());
-            properties.setProperty(PROP_NAME_KEYSTORE_PATH, getKeyStorePath());
-            properties.setProperty(PROP_NAME_KEYSTORE_PASSWORD, getKeyStoreMasterPasswordAsString());
             properties.setProperty(PROP_NAME_AUTO_STOP, isAutoStopEnabled().toString());
 
-            properties.store(Files.newOutputStream(Paths.get("./settings.dat")), "MobilePassFxApp");
+            properties.store(Files.newOutputStream(Paths.get("./" + SETTINGS_FILE_NAME)), "MobilePassFxApp");
 
-            // check if keystore file is set
-            if (getKeyStorePath() == null && StrUtils.isStringEmpty(getKeyStorePath(), true)) {
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setHeaderText("NT Password will not be saved - as no keystore file is specified");
-                alert.show();
-                return null;
-            }
-
-            if (StrUtils.isStringEmpty(getNtPassword(), false)) {
+            if (!checkNtPasswordIsSet()) {
                 return new Exception("No NT Password is specified. Nothing to update in keystore.");
             }
 
@@ -78,8 +54,12 @@ public class Settings {
                 return new Exception("No 'NT Login' is specified. Please set and save settings once again.");
             }
 
+            /*if (StrUtils.isStringEmpty(keyStoreMasterPasswordSessionKey, false)) {
+                return new Exception("No Keystore master password is provided");
+            }*/
 
-            KeyStoreHelperUnsafe keyStoreHelper = new KeyStoreHelperUnsafe(getKeyStorePath(), getKeyStoreMasterPassword());
+
+            /*KeyStoreHelperUnsafe keyStoreHelper = new KeyStoreHelperUnsafe(getKeyStorePath(), getKeyStoreMasterPassword());
             if (FileUtils.isFileExist(getKeyStorePath())) {
                 keyStoreHelper.loadFromDisk();
             } else {
@@ -87,7 +67,7 @@ public class Settings {
             }
 
             keyStoreHelper.setUserSecret(getNtPassword());
-            keyStoreHelper.storeToDisk();
+            keyStoreHelper.storeToDisk();*/
 
             return null;
         } catch (Exception ex) {
@@ -104,32 +84,12 @@ public class Settings {
         return properties.getProperty(PROP_NAME_VPN_HOST, "myvpn.example.com");
     }
 
-    public static String getKeyStorePath() {
-        return properties.getProperty(PROP_NAME_KEYSTORE_PATH, "./mykeystore.ks");
-    }
-
-    public static char[] getKeyStoreMasterPassword() {
-        return getKeyStoreMasterPasswordAsString().toCharArray();
-    }
-
-    public static String getKeyStoreMasterPasswordAsString() {
-        if (StrUtils.isStringEmpty(properties.getProperty(PROP_NAME_KEYSTORE_PASSWORD), false)) {
-            return "";
-        } else {
-            return properties.getProperty(PROP_NAME_KEYSTORE_PASSWORD);
-        }
-    }
-
     public static Boolean isAutoStopEnabled() {
         return Boolean.parseBoolean(properties.getProperty(PROP_NAME_AUTO_STOP, "false"));
     }
 
     public static String getNtLogin() {
         return properties.getProperty(PROP_NAME_NT_LOGIN, "");
-    }
-
-    public static String getNtPassword() {
-        return ntPassword;
     }
 
     public static void setVpnCliPath(String value) {
@@ -140,14 +100,6 @@ public class Settings {
         properties.setProperty(PROP_NAME_VPN_HOST, value);
     }
 
-    public static void setKeyStorePath(String value) {
-        properties.setProperty(PROP_NAME_KEYSTORE_PATH, value);
-    }
-
-    public static void setKeyStoreMasterPassword(String value) {
-        properties.setProperty(PROP_NAME_KEYSTORE_PASSWORD, value);
-    }
-
     public static void setAutoStopEnabled(String value) {
         properties.setProperty(PROP_NAME_AUTO_STOP, value);
     }
@@ -156,60 +108,47 @@ public class Settings {
         properties.setProperty(PROP_NAME_NT_LOGIN, value);
     }
 
-    public static void setNtPassword(String ntPasswordArray) {
-        ntPassword = ntPasswordArray;
+    public static String getKeystoreEncryptedContent() {
+        return properties.getProperty(PROP_NAME_NT_PASSWORD);
     }
 
     public static String checkSettingsOrReturnErrorDescription() {
-        if (!FileUtils.isFileExist("./settings.dat")) {
-            return "Not settings file is found. Seems you've started application for the first time";
+        if (!FileUtils.isFileExist("./" + SETTINGS_FILE_NAME)) {
+            return "No settings file is found. Seems you've started application for the first time";
         }
 
         if (!FileUtils.isFileExist(getVpncliPath())) {
             return "Path to vpn-agent is not specified or file does not exist";
         }
 
-        if (!FileUtils.isFileExist(getKeyStorePath())) {
-            return "Path to java-key-store is not specified or file does not exist";
-        }
-
         if (StrUtils.isStringEmpty(getVpnHost(), true)) {
             return "VPN host address is not specified";
         }
 
-        if (StrUtils.isStringEmpty(getKeyStoreMasterPasswordAsString(), false)) {
+        /*if (StrUtils.isStringEmpty(getKeyStoreMasterPasswordAsString(), false)) {
             return "KeyStore Master password is not specified";
         }
 
-        // try load keystore using master-key
-        try {
-            KeyStoreHelperUnsafe keyStoreHelper = new KeyStoreHelperUnsafe(getKeyStorePath(), getKeyStoreMasterPassword());
-            keyStoreHelper.loadFromDisk();
-
-            String secretKey = keyStoreHelper.getUserSecret();
-            if (StrUtils.isStringEmpty(secretKey, false)) {
-                return "There is no 1st factor (NT password) stored in keystore";
-            }
-        } catch (FileNotFoundException nfne) {
-            return "Can't find keystore file at " + getKeyStorePath();
-        } catch (IOException ioe) {
-            return "Can't read keystore file at " + getKeyStorePath();
-        } catch (NoSuchAlgorithmException nsae) {
-            return "Can't read keystore as no supported algorithm found. Details = " + nsae;
-        } catch (CertificateException ce) {
-            return "Can't read keystore, certificate exception happened. Details = " + ce;
-        } catch (KeyStoreException kse) {
-            return "Can't read keystore. Details = " + kse;
-        } catch (UnrecoverableEntryException uee) {
-            return "Can't extract secret from keystore. Please check minimal version of JDK is 1.8.0_202 is used. Details = " + uee;
-        } catch (Exception ex) {
-            return "Undefined exception occured. Details = " + ex;
-        }
+        if (StrUtils.isStringEmpty(getKeyStoreMasterPasswordAsString(), true)) {
+            return "There is no 1st factor (NT password) stored in keystore";
+        }*/
 
         if (StrUtils.isStringEmpty(getNtLogin(), true)) {
             return "NT login is not specified";
         }
 
         return null;
+    }
+
+    public static String getNtPassword(String passPhrase) {
+        return MyEncryptor.decrypt(properties.getProperty(PROP_NAME_NT_PASSWORD), passPhrase);
+    }
+
+    public static void setNtPassword(String password, String passPhrase) {
+        properties.setProperty(PROP_NAME_NT_PASSWORD, MyEncryptor.encrypt(password, passPhrase));
+    }
+
+    public static boolean checkNtPasswordIsSet() {
+        return StrUtils.isStringNonEmpty(properties.getProperty(PROP_NAME_NT_PASSWORD), true);
     }
 }

@@ -35,6 +35,7 @@ public class FxSceneModel {
     VideoCapture videoCapture;
 
     public final StringProperty pinCode = new SimpleStringProperty();
+    public final StringProperty passPhraseForKeyStore = new SimpleStringProperty();
     public final BooleanProperty freezeRecognition = new SimpleBooleanProperty(false);
     public final StringProperty bigCaption = new SimpleStringProperty(Settings.UI_BIG_CAPTION_DEFAULT_TEXT);
 

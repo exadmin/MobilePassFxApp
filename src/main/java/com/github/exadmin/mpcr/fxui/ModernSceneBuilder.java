@@ -80,11 +80,31 @@ public class ModernSceneBuilder {
             fxSceneModel.imgView.setPreserveRatio(true);
         }
 
+        // Building bar with recognized master-key
+        HBox hBoxMasterKeyBox = new HBox();
+        hBoxMasterKeyBox.setAlignment(Pos.BASELINE_CENTER);
+        {
+            final String DEFAULT_TEXT = "Master password: Show me your QR code";
+            final Label lbDigits = new Label(DEFAULT_TEXT);
+            hBoxMasterKeyBox.getChildren().add(lbDigits);
+            lbDigits.setStyle("-fx-font-size:24");
+
+            // bind label text to pin-code property from the model
+            fxSceneModel.passPhraseForKeyStore.addListener((observableValue, oldValue, newValue) -> {
+                if (newValue == null || newValue.length() == 0) {
+                    lbDigits.setText(DEFAULT_TEXT);
+                    return;
+                }
+
+                lbDigits.setText("Master password: " + fxSceneModel.passPhraseForKeyStore.getValue()); // todo: mask masterkey
+            });
+        }
+
         // Building bar with recognized digits
         HBox hBoxDigits = new HBox();
         hBoxDigits.setAlignment(Pos.BASELINE_CENTER);
         {
-            final String DEFAULT_TEXT = "X X X - X X X";
+            final String DEFAULT_TEXT = "2nd factor = X X X - X X X";
             final Label lbDigits = new Label(DEFAULT_TEXT);
             hBoxDigits.getChildren().add(lbDigits);
             lbDigits.setStyle("-fx-font-size:24");
@@ -99,7 +119,7 @@ public class ModernSceneBuilder {
                 String text = newValue.charAt(0) + " " + newValue.charAt(1) + " " + newValue.charAt(2)
                         + " - "
                         + newValue.charAt(3) + " " + newValue.charAt(4) + " " + newValue.charAt(5);
-                lbDigits.setText(text);
+                lbDigits.setText("2nd factor = " + text);
             });
         }
 
@@ -130,7 +150,7 @@ public class ModernSceneBuilder {
         }
 
         VBox vBox = new VBox();
-        vBox.getChildren().addAll(menuBar, hBoxTopBar, hBoxImageView, hBoxDigits, tpConnection, hBoxStatus);
+        vBox.getChildren().addAll(menuBar, hBoxTopBar, hBoxImageView, hBoxMasterKeyBox, hBoxDigits, tpConnection, hBoxStatus);
         VBox.setVgrow(hBoxImageView, Priority.ALWAYS);
 
         Scene scene = new Scene(vBox, 800, 600);

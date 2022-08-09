@@ -5,8 +5,6 @@ import com.github.exadmin.mpcr.fxui.FxSceneModel;
 import com.github.exadmin.mpcr.misc.FileUtils;
 import com.github.exadmin.mpcr.misc.Settings;
 import com.github.exadmin.mpcr.misc.StrUtils;
-import javafx.application.Platform;
-import javafx.scene.control.Alert;
 
 import java.io.*;
 
@@ -52,7 +50,7 @@ public class EstablishConnectionThread extends MyRunnable {
         try (PrintWriter pw = new PrintWriter(tmpCfgFile)) {
             pw.println("connect " + Settings.getVpnHost());
             pw.println(Settings.getNtLogin());
-            char[] chars = Settings.getNtPassword().toCharArray();
+            char[] chars = Settings.getNtPassword(fxSceneModel.passPhraseForKeyStore.getValue()).toCharArray();
             for (char ch : chars) {
                 pw.print(ch);
             }

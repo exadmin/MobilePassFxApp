@@ -13,6 +13,8 @@ import javafx.scene.control.Alert;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import java.util.Set;
+
 public class SettingsSceneBuilder {
     private final Stage primaryStage;
     private final boolean terminateApplicationOnClose;
@@ -40,9 +42,8 @@ public class SettingsSceneBuilder {
 
     private Scene buildSettingsScene(Stage myStage) {
         StringProperty vpnClientPath = new SimpleStringProperty(Settings.getVpncliPath());
-        StringProperty keystorePath = new SimpleStringProperty(Settings.getKeyStorePath());
         StringProperty vpnAddress = new SimpleStringProperty(Settings.getVpnHost());
-        StringProperty ksMasterPass = new SimpleStringProperty(Settings.getKeyStoreMasterPasswordAsString());
+        StringProperty ksMasterPass = new SimpleStringProperty("");
         StringProperty ntLogin = new SimpleStringProperty(Settings.getNtLogin());
         StringProperty ntPassword1 = new SimpleStringProperty(""); // we should never show stored NT password in UI
         StringProperty ntPassword2 = new SimpleStringProperty("");
@@ -58,13 +59,19 @@ public class SettingsSceneBuilder {
                 return;
             }
 
+            if (StrUtils.isStringEmpty(ksMasterPass.getValue(), true)) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setHeaderText("Error");
+                alert.setContentText("It's mandatory to set keystore passphrase before saving NT-Password. Also, you have to create QR code with pass-phrase before.");
+                alert.showAndWait();
+                return;
+            }
+
             Settings.setVpnCliPath(vpnClientPath.getValue());
-            Settings.setKeyStorePath(keystorePath.getValue());
             Settings.setVpnHost(vpnAddress.getValue());
-            Settings.setKeyStoreMasterPassword(ksMasterPass.getValue());
+            Settings.setNtPassword(ntPassword1.getValue(), ksMasterPass.getValue());
             Settings.setNTLogin(ntLogin.getValue());
             Settings.setAutoStopEnabled(stopAutomatically.getValue().toString());
-            Settings.setNtPassword(ntPassword1.getValue());
 
             Exception exWhenSaving = Settings.saveSettingsToFile();
             if (exWhenSaving != null) {
@@ -108,11 +115,9 @@ public class SettingsSceneBuilder {
                 .doneHere();
 
         iSceneBuilder
-                .addBrowseFileControl()
-                .setCaptionText("Keystore file path")
-                .bindStringProperty(keystorePath)
-                .addFileChoosingExtensionFilter("All files (*.*)", "*.*")
-                .setDefaultDirectoryForFileChooser("./")
+                .addSimpleTextControl()
+                .setCaptionText("NT Login to connect on behalf of")
+                .bindStringProperty(ntLogin)
                 .doneHere();
 
         iSceneBuilder
@@ -122,14 +127,7 @@ public class SettingsSceneBuilder {
                 .setPromptText("Provide master password for key-store", Settings.FX_STYLE_PASSWORD_PROMPT_STYLE_NEED_INPUT)
                 .doneHere();
 
-        iSceneBuilder
-                .addSimpleTextControl()
-                .setCaptionText("NT Login to connect on behalf of")
-                .bindStringProperty(ntLogin)
-                .doneHere();
-
-        boolean isPasswordSet =
-                StrUtils.isStringNonEmpty(Settings.getNtPassword(), false);
+        boolean isPasswordSet = Settings.checkNtPasswordIsSet();
         String promptText = isPasswordSet ? "Some password is already set but you can update it if needed" : "Please provide password";
         String cssStyle   = isPasswordSet ? Settings.FX_STYLE_PASSWORD_PROMPT_STYLE_VALUE_IS_SET : Settings.FX_STYLE_PASSWORD_PROMPT_STYLE_NEED_INPUT;
 
