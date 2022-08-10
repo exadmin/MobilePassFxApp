@@ -4,6 +4,7 @@ import com.github.exadmin.mpcr.async.MyRunnable;
 import com.github.exadmin.mpcr.async.ThreadsSequence;
 import com.github.exadmin.mpcr.fxui.FxSceneModel;
 import com.github.exadmin.mpcr.misc.Settings;
+import com.github.exadmin.mpcr.misc.StrUtils;
 import com.github.exadmin.mpcr.recognition.DigitsFinder;
 import com.github.exadmin.opencv4j.ImageUtils;
 import javafx.application.Platform;
@@ -38,21 +39,21 @@ public class DigitsRecognitionThread extends MyRunnable {
                 fxSceneModel.getVideoCapture().read(frame);
 
                 if (!frame.empty()) {
-                    if (qrCodeDetector == null) {
-                        qrCodeDetector = new QRCodeDetector();
-                    }
+                    // if QR code is still not defined
+                    if (StrUtils.isStringEmpty(fxSceneModel.passPhraseForKeyStore.getValue(), true) || fxSceneModel.passPhraseForKeyStore.getValue().equals("ERROR")) {
 
-                    String qrCodeStr = qrCodeDetector.detectAndDecode(frame);
-                    if (qrCodeStr != null && qrCodeStr.length() > 0) {
-                        // System.out.println("qr = " + qrCodeStr);
-                        // todo: implement quick check - that pass-phrase was recognized correctly
+                        if (qrCodeDetector == null) {
+                            qrCodeDetector = new QRCodeDetector();
+                        }
 
-                        // String ntPassword =
+                        String qrCodeStr = qrCodeDetector.detectAndDecode(frame);
+                        if (qrCodeStr != null && qrCodeStr.length() > 0) {
 
-                        Platform.runLater(() -> {
-                            fxSceneModel.passPhraseForKeyStore.setValue(qrCodeStr);
-                        });
-
+                            String possibleNTPassword = Settings.getNtPassword(qrCodeStr);
+                            Platform.runLater(() -> {
+                                fxSceneModel.passPhraseForKeyStore.setValue(possibleNTPassword != null ? qrCodeStr : "ERROR");
+                            });
+                        }
                     }
 
                     // Render it on the main FX form

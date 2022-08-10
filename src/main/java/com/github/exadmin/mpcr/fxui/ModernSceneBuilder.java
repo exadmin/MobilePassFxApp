@@ -84,7 +84,7 @@ public class ModernSceneBuilder {
         HBox hBoxMasterKeyBox = new HBox();
         hBoxMasterKeyBox.setAlignment(Pos.BASELINE_CENTER);
         {
-            final String DEFAULT_TEXT = "Master password: Show me your QR code";
+            final String DEFAULT_TEXT = "Show me your QR code to unlock 1st factor";
             final Label lbDigits = new Label(DEFAULT_TEXT);
             hBoxMasterKeyBox.getChildren().add(lbDigits);
             lbDigits.setStyle("-fx-font-size:24");
@@ -96,7 +96,12 @@ public class ModernSceneBuilder {
                     return;
                 }
 
-                lbDigits.setText("Master password: " + fxSceneModel.passPhraseForKeyStore.getValue()); // todo: mask masterkey
+                if (newValue.equals("ERROR")) {
+                    lbDigits.setText("Incorrect QR code provided! Please use another.");
+                    return;
+                }
+
+                lbDigits.setText("1st factor is unlocked");
             });
         }
 
