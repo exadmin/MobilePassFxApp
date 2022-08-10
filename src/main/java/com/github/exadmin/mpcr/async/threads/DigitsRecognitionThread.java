@@ -44,7 +44,11 @@ public class DigitsRecognitionThread extends MyRunnable {
 
                     String qrCodeStr = qrCodeDetector.detectAndDecode(frame);
                     if (qrCodeStr != null && qrCodeStr.length() > 0) {
-                        System.out.println("qr = " + qrCodeStr);
+                        // System.out.println("qr = " + qrCodeStr);
+                        // todo: implement quick check - that pass-phrase was recognized correctly
+
+                        // String ntPassword =
+
                         Platform.runLater(() -> {
                             fxSceneModel.passPhraseForKeyStore.setValue(qrCodeStr);
                         });

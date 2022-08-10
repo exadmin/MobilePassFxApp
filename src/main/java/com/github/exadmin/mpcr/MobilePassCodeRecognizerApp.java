@@ -13,8 +13,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
-import java.util.Map;
-
 public class MobilePassCodeRecognizerApp extends Application {
 
     public static void main(String[] args) {

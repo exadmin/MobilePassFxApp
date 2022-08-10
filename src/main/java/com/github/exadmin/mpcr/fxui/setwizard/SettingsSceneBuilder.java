@@ -13,8 +13,6 @@ import javafx.scene.control.Alert;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.util.Set;
-
 public class SettingsSceneBuilder {
     private final Stage primaryStage;
     private final boolean terminateApplicationOnClose;

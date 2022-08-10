@@ -80,4 +80,20 @@ public class TestEncryptor {
 
         assertEquals(sourceText, decryptedStr);
     }
+
+    @Test
+    public void basicEncryptDecryptUsingWrongPassword() throws Exception {
+        String sourceText = ">>> Hello World!Hello World!Hello World!Hello World!Hello World! <<<";
+        String passPhraseGood = "correct password";
+        String passPhraseBad = "wrong passwrod";
+
+        String encryptedStr = MyEncryptor.encrypt(sourceText, passPhraseGood);
+        assertNotNull(encryptedStr);
+
+        assertNotEquals(sourceText, encryptedStr);
+        System.out.println(encryptedStr);
+
+        String result = MyEncryptor.decrypt(encryptedStr, passPhraseBad);
+        assertNull(result); // we are expecting null as password was incorrect
+    }
 }
