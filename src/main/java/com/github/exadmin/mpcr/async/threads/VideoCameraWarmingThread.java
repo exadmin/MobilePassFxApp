@@ -10,7 +10,7 @@ public class VideoCameraWarmingThread extends MyRunnable {
     }
 
     @Override
-    protected void runSafe() throws Exception {
+    protected void runSafe() {
         VideoCapture videoCapture = new VideoCapture();
         videoCapture.open(0);
         fxSceneModel.setVideoCapture(videoCapture);

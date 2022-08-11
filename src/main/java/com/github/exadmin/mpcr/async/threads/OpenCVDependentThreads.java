@@ -10,7 +10,7 @@ public class OpenCVDependentThreads extends MyRunnable {
     }
 
     @Override
-    protected void runSafe() throws Exception {
+    protected void runSafe() {
         new ThreadsSequence()
                 .startFrom(VideoCameraWarmingThread.class)
                 .start(fxSceneModel);

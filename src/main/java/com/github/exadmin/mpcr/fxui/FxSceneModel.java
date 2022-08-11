@@ -86,16 +86,6 @@ public class FxSceneModel {
         kNearestReference.set(kNearest);
     }
 
-
-    public void setDebugImageAsync(Image image, String text, int row, int col) {
-        if (imageViews != null && labels != null) {
-            Platform.runLater(() -> {
-                imageViews[row][col].setImage(image);
-                labels[row][col].setText(text);
-            });
-        }
-    }
-
     public void setDebugImageAsync(Mat matrix, String text, int row, int col) {
         if (imageViews != null && labels != null && matrix != null) {
             Image image = ImageUtils.convertToFxImage(matrix);

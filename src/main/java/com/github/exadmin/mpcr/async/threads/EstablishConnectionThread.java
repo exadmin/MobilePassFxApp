@@ -5,11 +5,12 @@ import com.github.exadmin.mpcr.fxui.FxSceneModel;
 import com.github.exadmin.mpcr.misc.FileUtils;
 import com.github.exadmin.mpcr.misc.Settings;
 import com.github.exadmin.mpcr.misc.StrUtils;
+import com.github.exadmin.mpcr.misc.ThreadUtils;
 
 import java.io.*;
 
 public class EstablishConnectionThread extends MyRunnable {
-    private static final String CMD_SHORT_FILENAME = ".\\vpncli.cmd";
+    private static final String CMD_SHORT_FILENAME = ".\\_vpncli.cmd";
 
     private boolean printToConsole = false;
 
@@ -23,7 +24,7 @@ public class EstablishConnectionThread extends MyRunnable {
     }
 
     @Override
-    protected void runSafe() throws Exception {
+    protected void runSafe() {
         // shutdown video-camera - we do not need it anymore
         fxSceneModel.getVideoCapture().release();
 
@@ -36,11 +37,19 @@ public class EstablishConnectionThread extends MyRunnable {
 
             pw.println("\"" + Settings.getVpncliPath() + "\" -s < %1");
             pw.println("\"" + FileUtils.getFolderOnly(Settings.getVpncliPath()) + "\\vpnui.exe" + "\"");
+        } catch (Exception ex) {
+            printlnToFxConsole("Can't create or write to the command file " + cmdFile + ". Please check RW access. Terminating process, sorry. Exception is " + ex);
+            return;
         }
 
         // create parameters file to be passed as argument into executable file
-        File tmpCfgFile = File.createTempFile("mpass", "");
-        tmpCfgFile.deleteOnExit();
+        File tmpCfgFile;
+        try {
+            tmpCfgFile = File.createTempFile("mpass", "");
+        } catch (IOException ioe) {
+            printlnToFxConsole("Can't create temp file in user's temp folder. Please check RW access. Terminating process, sorry. Exception is " + ioe);
+            return;
+        }
 
         try (PrintWriter pw = new PrintWriter(tmpCfgFile)) {
             pw.println("connect " + Settings.getVpnHost());
@@ -53,6 +62,9 @@ public class EstablishConnectionThread extends MyRunnable {
             pw.println(fxSceneModel.pinCode.getValue());
             pw.println("y");
             pw.println("exit");
+        } catch (FileNotFoundException fnfe) {
+            printlnToFxConsole("Can't file temp file in user's temp folder. Please check read access. Terminating process, sorry. Exception is " + fnfe);
+            return;
         }
 
         if (fxSceneModel.isCLICallDisabled()) {
@@ -62,26 +74,30 @@ public class EstablishConnectionThread extends MyRunnable {
 
         Runtime rt = Runtime.getRuntime();
         String[] commands = {CMD_SHORT_FILENAME, tmpCfgFile.getAbsolutePath()};
-        Process process = rt.exec(commands);
 
-        // OutputStream stdin = process.getOutputStream ();
-        // InputStream stderr = process.getErrorStream ();
-        InputStream stdout = process.getInputStream ();
-
-        BufferedReader reader = new BufferedReader (new InputStreamReader(stdout));
-
-        String line;
-        while ((line = reader.readLine ()) != null) {
-            line = line.trim();
-            if (StrUtils.isStringEmpty(line, false)) continue;
-
-            printlnToFxConsole(line);
-
-            if (line.equals("goodbye...")) break;
+        Process process;
+        try {
+            process = rt.exec(commands);
+        } catch (IOException ioe) {
+            printlnToFxConsole("Error while executing connection sub-process. Exception is "+ ioe);
+            return;
         }
 
-        reader.close();
-        stdout.close();
+        try (InputStream stdout = process.getInputStream ();
+             BufferedReader reader = new BufferedReader (new InputStreamReader(stdout))) {
+
+            String line;
+            while ((line = reader.readLine ()) != null) {
+                line = line.trim();
+                if (StrUtils.isStringEmpty(line, false)) continue;
+
+                printlnToFxConsole(line);
+
+                if (line.equals("goodbye...")) break;
+            }
+        } catch (IOException ioe) {
+            printlnToFxConsole("Can't read from console stream. Abnormal run. Exception is " + ioe);
+        }
 
         try {
             int attemptsToDeleteFile = 16;
@@ -98,7 +114,7 @@ public class EstablishConnectionThread extends MyRunnable {
                 }
 
                 printlnToFxConsole("Waiting a little to repeat deletion attempt");
-                Thread.sleep(500);
+                ThreadUtils.sleep(attemptsToDeleteFile > 8 ? 500 : 1000); // let's wait more if first attempts are failed
             }
 
             if (attemptsToDeleteFile == 0) {
@@ -108,7 +124,7 @@ public class EstablishConnectionThread extends MyRunnable {
             ex.printStackTrace();
         }
 
-        // todo: in case successfull VPN connection establishing - we can add correctly recognized digits into the library (ala ML)
+        // todo: in case successful VPN connection establishing - we can add correctly recognized digits into the library (ala ML)
     }
 
     private void printlnToFxConsole(String message) {

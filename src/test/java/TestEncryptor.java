@@ -6,7 +6,7 @@ import static org.junit.Assert.*;
 public class TestEncryptor {
 
     @Test
-    public void justEncryptTest() throws Exception {
+    public void justEncryptTest() {
         String sourceText = "Hello World!";
         String passPhrase = "Very long secret string with special characters #!@#!";
 
@@ -19,7 +19,7 @@ public class TestEncryptor {
     }
 
     @Test
-    public void justEncryptTest2() throws Exception {
+    public void justEncryptTest2() {
         String sourceText = "Hello World!Hello World!Hello World!Hello World!Hello World!";
         String passPhrase = "Very long secret string with special characters #!@#!";
 
@@ -31,7 +31,7 @@ public class TestEncryptor {
     }
 
     @Test
-    public void basicEncryptDecryptTest() throws Exception {
+    public void basicEncryptDecryptTest() {
         String sourceText = "Hello World!Hello World!Hello World!Hello World!Hello World!";
         String passPhrase = "Very long secret string with special characters #!@#!";
 
@@ -48,7 +48,7 @@ public class TestEncryptor {
     }
 
     @Test
-    public void basicEncryptDecryptTestShortPassword() throws Exception {
+    public void basicEncryptDecryptTestShortPassword() {
         String sourceText = "Hello World!Hello World!Hello World!Hello World!Hello World!";
         String passPhrase = "!32";
 
@@ -65,7 +65,7 @@ public class TestEncryptor {
     }
 
     @Test
-    public void basicEncryptDecryptTestLongPassword() throws Exception {
+    public void basicEncryptDecryptTestLongPassword() {
         String sourceText = "Hello World!Hello World!Hello World!Hello World!Hello World!";
         String passPhrase = "!3282nrc982yr3c982 y398hf2093dh0932hdo9u32hd 092y3d 982y39hod y32o97d giwyfgc i732yd9732 udgiiywfeg i8273u gfi823 gfi82iy3gid8y32g di823ygqd i82iy3gd o723qgdi83";
 
@@ -82,10 +82,10 @@ public class TestEncryptor {
     }
 
     @Test
-    public void basicEncryptDecryptUsingWrongPassword() throws Exception {
+    public void basicEncryptDecryptUsingWrongPassword() {
         String sourceText = ">>> Hello World!Hello World!Hello World!Hello World!Hello World! <<<";
         String passPhraseGood = "correct password";
-        String passPhraseBad = "wrong passwrod";
+        String passPhraseBad = "wrong password";
 
         String encryptedStr = MyEncryptor.encrypt(sourceText, passPhraseGood);
         assertNotNull(encryptedStr);

@@ -16,7 +16,7 @@ public abstract class MyRunnable implements Runnable {
         // System.out.println("Starting thread " + Thread.currentThread());
     }
 
-    protected abstract void runSafe() throws Exception;
+    protected abstract void runSafe();
 
     protected void afterRunSafe() throws Exception {
         // do nothing

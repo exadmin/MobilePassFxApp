@@ -4,6 +4,7 @@ import com.github.exadmin.mpcr.async.MyRunnable;
 import com.github.exadmin.mpcr.async.ThreadsSequence;
 import com.github.exadmin.mpcr.fxui.FxSceneModel;
 import com.github.exadmin.mpcr.misc.Settings;
+import com.github.exadmin.mpcr.misc.ThreadUtils;
 import javafx.application.Platform;
 
 public class CountDownThread extends MyRunnable {
@@ -13,7 +14,7 @@ public class CountDownThread extends MyRunnable {
     }
 
     @Override
-    protected void runSafe() throws Exception {
+    protected void runSafe() {
         long tsStart = System.currentTimeMillis();
         long tsEnd   = tsStart + Settings.TIME_TO_WAIT_BEFORE_START_VPN_CONNECTING_SECONDS * 1000;
         long tsCurrent = System.currentTimeMillis();
@@ -33,7 +34,7 @@ public class CountDownThread extends MyRunnable {
                 break;
             }
 
-            Thread.sleep(Settings.DELAY_BETWEEN_FRAMES_MS);
+            ThreadUtils.sleep(Settings.DELAY_BETWEEN_FRAMES_MS);
             tsCurrent = System.currentTimeMillis();
         }
 

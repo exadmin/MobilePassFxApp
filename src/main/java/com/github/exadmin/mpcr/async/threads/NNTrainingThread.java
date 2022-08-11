@@ -16,10 +16,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class NNTrainingThread extends MyRunnable {
     private static final Size SIZE = new Size(20, 20);
@@ -49,7 +46,7 @@ public class NNTrainingThread extends MyRunnable {
     }
 
     @Override
-    protected void runSafe() throws Exception {
+    protected void runSafe() {
         // prepare train matrices
         Mat trainData = new Mat();
         List<Integer> trainLabs = new ArrayList<>();
@@ -75,6 +72,7 @@ public class NNTrainingThread extends MyRunnable {
             }
         }
 
+
         KNearest kNearest = KNearest.create();
         kNearest.train(trainData, Ml.ROW_SAMPLE, Converters.vector_int_to_Mat(trainLabs));
         fxSceneModel.setKNearest(kNearest);
@@ -84,9 +82,8 @@ public class NNTrainingThread extends MyRunnable {
      * Returns list of all png files inside directory
      * @param dir String name of directory to list pictures in
      * @return List of full file names
-     * @throws IOException
      */
-    public static List<String> listFilesUsingDirectoryStream(String dir) throws IOException {
+    public List<String> listFilesUsingDirectoryStream(String dir) {
         List<String> fileList = new ArrayList<>();
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(dir))) {
             for (Path path : stream) {
@@ -95,6 +92,9 @@ public class NNTrainingThread extends MyRunnable {
                     if (fileName.endsWith(".png")) fileList.add(path.toString());
                 }
             }
+        } catch (IOException ioe) {
+            fxSceneModel.printToConsole("Error while searching pictures with digits for NN at " + dir + ". Exception is " + ioe);
+            return Collections.emptyList();
         }
         return fileList;
     }

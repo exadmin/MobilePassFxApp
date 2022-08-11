@@ -14,7 +14,7 @@ public class GifResourceLoaderThread extends MyRunnable {
     }
 
     @Override
-    protected void runSafe() throws Exception {
+    protected void runSafe() {
         // loading gif image
         InputStream gifStream = Objects.requireNonNull(getClass().getResourceAsStream("/images/camera/loading.gif"));
         Image image = new Image(gifStream);

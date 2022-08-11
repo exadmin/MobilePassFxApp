@@ -5,7 +5,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class FileUtils {
-    public static boolean isFileExist(String path) {
+    public static boolean isFileAbsent(String path) {
         File file = new File(path);
         return file.isFile() && file.exists();
     }

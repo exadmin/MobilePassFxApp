@@ -5,6 +5,7 @@ import com.github.exadmin.mpcr.async.ThreadsSequence;
 import com.github.exadmin.mpcr.fxui.FxSceneModel;
 import com.github.exadmin.mpcr.misc.Settings;
 import com.github.exadmin.mpcr.misc.StrUtils;
+import com.github.exadmin.mpcr.misc.ThreadUtils;
 import com.github.exadmin.mpcr.recognition.DigitsFinder;
 import com.github.exadmin.opencv4j.ImageUtils;
 import javafx.application.Platform;
@@ -17,7 +18,7 @@ import java.util.List;
 public class DigitsRecognitionThread extends MyRunnable {
     private boolean doVideoCapturing;
     private final DigitsFinder digitsFinder;
-    private QRCodeDetector qrCodeDetector;
+    private final QRCodeDetector qrCodeDetector;
 
     public DigitsRecognitionThread(FxSceneModel fxSceneModel, MyRunnable nextRunnable) {
         super(fxSceneModel, nextRunnable);
@@ -28,7 +29,7 @@ public class DigitsRecognitionThread extends MyRunnable {
     }
 
     @Override
-    protected void runSafe() throws Exception {
+    protected void runSafe() {
         doVideoCapturing = true;
 
         Mat frame = new Mat();
@@ -56,9 +57,7 @@ public class DigitsRecognitionThread extends MyRunnable {
                             String possibleNTPassword = Settings.getNtPassword(qrCodeStr);
                             qrCodeIsDefined = possibleNTPassword != null;
 
-                            Platform.runLater(() -> {
-                                fxSceneModel.passPhraseForKeyStore.setValue(possibleNTPassword == null ? "ERROR" : qrCodeStr);
-                            });
+                            Platform.runLater(() -> fxSceneModel.passPhraseForKeyStore.setValue(possibleNTPassword == null ? "ERROR" : qrCodeStr));
                         }
                     }
 
@@ -116,7 +115,7 @@ public class DigitsRecognitionThread extends MyRunnable {
             }
 
             // Make thread sleeping desired amount of time, subtracting time which was spent for digits recognition, but check that sleep time should not less than zero
-            Thread.sleep(Math.max(0, Settings.DELAY_BETWEEN_FRAMES_MS - recognitionTimeInMs));
+            ThreadUtils.sleep(Math.max(0, Settings.DELAY_BETWEEN_FRAMES_MS - recognitionTimeInMs));
         }
     }
 

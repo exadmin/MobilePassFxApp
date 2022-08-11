@@ -19,7 +19,7 @@ public class OpenCVLoaderThread extends MyRunnable {
     }
 
     @Override
-    protected void runSafe() throws Exception {
+    protected void runSafe() {
         OpenCV.loadShared();
     }
 

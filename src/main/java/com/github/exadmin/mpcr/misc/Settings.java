@@ -26,15 +26,11 @@ public class Settings {
     private static final Properties properties = new Properties();
     // private static String keyStoreMasterPasswordSessionKey = null;
 
-    public static Exception loadFromFile() {
+    public static void loadFromFile() {
         try {
             properties.load(Files.newInputStream(Paths.get("./" + SETTINGS_FILE_NAME)));
-            return null;
-        } catch (NoSuchFileException nsfe) {
-            return new Exception("Settings file '" + SETTINGS_FILE_NAME + "' is not found in the working dir");
         } catch (Exception ex) {
             ex.printStackTrace();
-            return ex;
         }
     }
 
@@ -53,21 +49,6 @@ public class Settings {
             if (StrUtils.isStringEmpty(getNtLogin(), true)) {
                 return new Exception("No 'NT Login' is specified. Please set and save settings once again.");
             }
-
-            /*if (StrUtils.isStringEmpty(keyStoreMasterPasswordSessionKey, false)) {
-                return new Exception("No Keystore master password is provided");
-            }*/
-
-
-            /*KeyStoreHelperUnsafe keyStoreHelper = new KeyStoreHelperUnsafe(getKeyStorePath(), getKeyStoreMasterPassword());
-            if (FileUtils.isFileExist(getKeyStorePath())) {
-                keyStoreHelper.loadFromDisk();
-            } else {
-                keyStoreHelper.initializeEmpty();
-            }
-
-            keyStoreHelper.setUserSecret(getNtPassword());
-            keyStoreHelper.storeToDisk();*/
 
             return null;
         } catch (Exception ex) {
@@ -108,30 +89,18 @@ public class Settings {
         properties.setProperty(PROP_NAME_NT_LOGIN, value);
     }
 
-    public static String getKeystoreEncryptedContent() {
-        return properties.getProperty(PROP_NAME_NT_PASSWORD);
-    }
-
     public static String checkSettingsOrReturnErrorDescription() {
-        if (!FileUtils.isFileExist("./" + SETTINGS_FILE_NAME)) {
+        if (FileUtils.isFileAbsent("./" + SETTINGS_FILE_NAME)) {
             return "No settings file is found. Seems you've started application for the first time";
         }
 
-        if (!FileUtils.isFileExist(getVpncliPath())) {
+        if (FileUtils.isFileAbsent(getVpncliPath())) {
             return "Path to vpn-agent is not specified or file does not exist";
         }
 
         if (StrUtils.isStringEmpty(getVpnHost(), true)) {
             return "VPN host address is not specified";
         }
-
-        /*if (StrUtils.isStringEmpty(getKeyStoreMasterPasswordAsString(), false)) {
-            return "KeyStore Master password is not specified";
-        }
-
-        if (StrUtils.isStringEmpty(getKeyStoreMasterPasswordAsString(), true)) {
-            return "There is no 1st factor (NT password) stored in keystore";
-        }*/
 
         if (StrUtils.isStringEmpty(getNtLogin(), true)) {
             return "NT login is not specified";
