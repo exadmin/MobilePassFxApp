@@ -23,7 +23,7 @@ The application recognizes second factor provided by "MobilePASS+" mobile applic
 To start using the application you will need:
 - Windows OS (currently only windows specific is supported and tested)
 - Cisco AnyConnect Secure Mobility application installed on your PC (you should already use it in manuall mode)
-- JDK, version 1.0.8_202 (minimal version successdully passed tests. For instance there are issues with keystore in JDK 1.0.8_76)
+- JDK, version 1.0.8_202 (minimal version successdully passed tests. There are issues with cryptography, see https://stackoverflow.com/questions/6481627/java-security-illegal-key-size-or-default-parameters)
 - MobilePASS+ mobile application (currently only Android version 2.2.1-2022032201 is tested)
 - GIT and Apache Maven (optional - is neede to make distributive from sources)
 

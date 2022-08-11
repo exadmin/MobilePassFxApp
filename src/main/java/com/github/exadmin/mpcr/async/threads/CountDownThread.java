@@ -21,7 +21,7 @@ public class CountDownThread extends MyRunnable {
         double k = 1d / (tsEnd - tsStart);
         while (tsCurrent < tsEnd) {
             double percentage = (tsCurrent - tsStart) * k;
-            long secondsLeft = approxSecondsLeft(tsEnd, tsCurrent);
+            long  secondsLeft = approxSecondsLeft(tsEnd, tsCurrent);
 
             Platform.runLater(() -> {
                 fxSceneModel.getProgressBar().setProgress(percentage);
@@ -29,6 +29,7 @@ public class CountDownThread extends MyRunnable {
             });
 
             if (fxSceneModel.escKeyWasPressedRecently.getValue()) {
+                fxSceneModel.digitsAreProvedByUser.setValue(false);
                 break;
             }
 
@@ -54,6 +55,8 @@ public class CountDownThread extends MyRunnable {
 
                 fxSceneModel.escKeyWasPressedRecently.setValue(false);
             });
+        } else {
+            fxSceneModel.digitsAreProvedByUser.setValue(true);
         }
     }
 

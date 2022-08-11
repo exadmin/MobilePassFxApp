@@ -37,6 +37,7 @@ public class FxSceneModel {
     public final StringProperty pinCode = new SimpleStringProperty();
     public final StringProperty passPhraseForKeyStore = new SimpleStringProperty();
     public final BooleanProperty freezeRecognition = new SimpleBooleanProperty(false);
+    public final BooleanProperty digitsAreProvedByUser = new SimpleBooleanProperty(false);
     public final StringProperty bigCaption = new SimpleStringProperty(Settings.UI_BIG_CAPTION_DEFAULT_TEXT);
 
     // image processing variables

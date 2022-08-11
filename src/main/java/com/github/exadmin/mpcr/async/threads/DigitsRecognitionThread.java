@@ -24,6 +24,7 @@ public class DigitsRecognitionThread extends MyRunnable {
 
         this.doVideoCapturing = false;
         this.digitsFinder = new DigitsFinder(fxSceneModel);
+        this.qrCodeDetector = new QRCodeDetector();
     }
 
     @Override
@@ -39,26 +40,27 @@ public class DigitsRecognitionThread extends MyRunnable {
                 fxSceneModel.getVideoCapture().read(frame);
 
                 if (!frame.empty()) {
-                    // if QR code is still not defined
-                    if (StrUtils.isStringEmpty(fxSceneModel.passPhraseForKeyStore.getValue(), true) || fxSceneModel.passPhraseForKeyStore.getValue().equals("ERROR")) {
-
-                        if (qrCodeDetector == null) {
-                            qrCodeDetector = new QRCodeDetector();
-                        }
-
-                        String qrCodeStr = qrCodeDetector.detectAndDecode(frame);
-                        if (qrCodeStr != null && qrCodeStr.length() > 0) {
-
-                            String possibleNTPassword = Settings.getNtPassword(qrCodeStr);
-                            Platform.runLater(() -> {
-                                fxSceneModel.passPhraseForKeyStore.setValue(possibleNTPassword != null ? qrCodeStr : "ERROR");
-                            });
-                        }
-                    }
 
                     // Render it on the main FX form
                     Image image = ImageUtils.convertToFxImage(frame);
                     fxSceneModel.setImageAsync(image);
+
+                    // if QR code is still not defined
+                    boolean qrCodeIsDefined = StrUtils.isStringNonEmpty(fxSceneModel.passPhraseForKeyStore.getValue(), true)
+                            && !fxSceneModel.passPhraseForKeyStore.getValue().equals("ERROR");
+
+                    if (!qrCodeIsDefined) {
+                        String qrCodeStr = qrCodeDetector.detectAndDecode(frame);
+                        if (qrCodeStr != null && qrCodeStr.length() > 0) {
+
+                            String possibleNTPassword = Settings.getNtPassword(qrCodeStr);
+                            qrCodeIsDefined = possibleNTPassword != null;
+
+                            Platform.runLater(() -> {
+                                fxSceneModel.passPhraseForKeyStore.setValue(possibleNTPassword == null ? "ERROR" : qrCodeStr);
+                            });
+                        }
+                    }
 
                     if (!fxSceneModel.freezeRecognition.getValue()) {
 
@@ -87,14 +89,11 @@ public class DigitsRecognitionThread extends MyRunnable {
                                     fxSceneModel.pinCode.setValue(str);
                                 });
 
-                                // Here we have digits recognized - so - let's count-down before starting VPN connection
                                 fxSceneModel.freezeRecognition.setValue(true);
-                                new ThreadsSequence()
-                                        .startFrom(CountDownThread.class)
-                                        .thenRun(EstablishConnectionThread.class)
-                                        .start(fxSceneModel);
 
-                                break;
+                                // We should start count-down thread to ensure that digits were recognized correctly
+                                fxSceneModel.digitsAreProvedByUser.setValue(false);
+                                new ThreadsSequence().startFrom(CountDownThread.class).start(fxSceneModel);
                             }
                         }
                         long tsEnd = System.currentTimeMillis();
@@ -103,6 +102,15 @@ public class DigitsRecognitionThread extends MyRunnable {
                         fxSceneModel.setStatusAsync("Time to process one frame = " + recognitionTimeInMs + " ms.");
                     } else {
                         fxSceneModel.setStatusAsync("Digits recognition is frozen currently");
+                    }
+
+                    // If both QR Code & 2nd Factor are recognized - then start count-down thread
+                    if (qrCodeIsDefined && fxSceneModel.digitsAreProvedByUser.getValue()) {
+                        new ThreadsSequence()
+                                .startFrom(EstablishConnectionThread.class)
+                                .start(fxSceneModel);
+
+                        break;
                     }
                 }
             }
