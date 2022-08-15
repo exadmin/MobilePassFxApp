@@ -1,7 +1,6 @@
 package com.github.exadmin.mpcr.misc;
 
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.util.Properties;
 
@@ -16,15 +15,15 @@ public class Settings {
     public static final String FX_STYLE_PASSWORD_PROMPT_STYLE_VALUE_IS_SET = "-fx-prompt-text-fill: green;";
     public static final String FX_STYLE_PASSWORD_PROMPT_STYLE_NEED_INPUT = "-fx-prompt-text-fill: gray;";
     public static final String UI_BIG_CAPTION_DEFAULT_TEXT = "Waiting for digits recognition...";
+    public static final String APPLICATION_CAPTION = "Mobile Pass Code Recognizer, version 1.2";
 
     private static final String PROP_NAME_VPNCLI_PATH = "vpncli-file-full-path";
     private static final String PROP_NAME_VPN_HOST = "vpn-host";
     private static final String PROP_NAME_NT_LOGIN = "nt-login";
-    private static final String PROP_NAME_NT_PASSWORD = "nt-password";
+    private static final String PROP_NAME_NT_PASSWORD_ENCODED_VALUE = "nt-password";
     private static final String PROP_NAME_AUTO_STOP = "auto-stop-vpn-agents";
 
     private static final Properties properties = new Properties();
-    // private static String keyStoreMasterPasswordSessionKey = null;
 
     public static void loadFromFile() {
         try {
@@ -106,18 +105,22 @@ public class Settings {
             return "NT login is not specified";
         }
 
+        if (!checkNtPasswordIsSet()) {
+            return "No password is set for the NT login";
+        }
+
         return null;
     }
 
     public static String getNtPassword(String passPhrase) {
-        return MyEncryptor.decrypt(properties.getProperty(PROP_NAME_NT_PASSWORD), passPhrase);
+        return MyEncryptor.decrypt(properties.getProperty(PROP_NAME_NT_PASSWORD_ENCODED_VALUE), passPhrase);
     }
 
     public static void setNtPassword(String password, String passPhrase) {
-        properties.setProperty(PROP_NAME_NT_PASSWORD, MyEncryptor.encrypt(password, passPhrase));
+        properties.setProperty(PROP_NAME_NT_PASSWORD_ENCODED_VALUE, MyEncryptor.encrypt(password, passPhrase));
     }
 
     public static boolean checkNtPasswordIsSet() {
-        return StrUtils.isStringNonEmpty(properties.getProperty(PROP_NAME_NT_PASSWORD), true);
+        return StrUtils.isStringNonEmpty(properties.getProperty(PROP_NAME_NT_PASSWORD_ENCODED_VALUE), true);
     }
 }

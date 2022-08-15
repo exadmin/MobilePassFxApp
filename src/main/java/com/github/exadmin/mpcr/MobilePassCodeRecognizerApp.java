@@ -31,7 +31,7 @@ public class MobilePassCodeRecognizerApp extends Application {
         ModernSceneBuilder fxMainSceneBuilder = new ModernSceneBuilder(fxSceneModel);
         Scene scene = fxMainSceneBuilder.buildUI();
 
-        primaryStage.setTitle("Mobile Pass Code Recognizer, version 1.1");
+        primaryStage.setTitle(Settings.APPLICATION_CAPTION);
         primaryStage.setScene(scene);
         primaryStage.setMaximized(false);
         primaryStage.show();

@@ -34,8 +34,8 @@ To start using the application you will need:
 * Find new folder "dist"
 * Create new folder for the application somewhere on your disk, for instance "C:\MobilePassFxApp" and copy content of the "dist" folder into it
 * Modify content of the "run-app.cmd" file to fit your environment
-* `cd c:\MobilePassApp_v1.1`
-* `start "" "c:\Program Files (x86)\Java\jdk1.8.0_202\bin\javaw.exe" -jar MobilePassFxApp-1.1.jar`
+* `cd c:\MobilePassApp_v1.2`
+* `start "" "c:\Program Files (x86)\Java\jdk1.8.0_202\bin\javaw.exe" -jar MobilePassFxApp-1.2.jar`
 * Create a shortcut on the desktop to the run-app.cmd of the application
 * (optional) set "Run as administrator" for the shortcut
 * Application is ready for usage
@@ -96,5 +96,5 @@ All next build steps were done in the `c:\Temp` working dir
 * Edit "c:\Program Files\MobilePassFxApp\run-app.cmd"
 Following content was used in example:
 `cd "c:\Program Files\MobilePassFxApp"
-start "" "c:\Program Files (x86)\Java\jdk1.8.0_202\bin\javaw.exe" -jar MobilePassFxApp-1.1.jar`
+start "" "c:\Program Files (x86)\Java\jdk1.8.0_202\bin\javaw.exe" -jar MobilePassFxApp-1.2.jar`
 * Create a shortcut for the run-app.cmd placing it on desktop
